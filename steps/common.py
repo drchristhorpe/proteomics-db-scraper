@@ -45,9 +45,9 @@ def build_session() -> requests.Session:
     session = requests.Session()
     session.headers.update(DEFAULT_HEADERS)
     retry = Retry(
-        total=5,
-        backoff_factor=1.0,
-        status_forcelist=(429, 500, 502, 503, 504),
+        total=3,
+        backoff_factor=0.5,
+        status_forcelist=(429,),
         allowed_methods=("GET",),
         raise_on_status=False,
     )
@@ -170,16 +170,8 @@ def _header_keys(table) -> list[str]:
     return keys
 
 
-def _cell_value(cell) -> dict[str, Any]:
-    text = cell.get_text(" ", strip=True)
-    out: dict[str, Any] = {"text": text}
-    link = cell.find("a", href=True)
-    if link is not None:
-        out["href"] = link["href"]
-    title = cell.get("title")
-    if title:
-        out["title"] = title
-    return out
+def _cell_value(cell) -> str:
+    return cell.get_text(" ", strip=True)
 
 
 def parse_results_table(html: str) -> list[dict[str, Any]]:
